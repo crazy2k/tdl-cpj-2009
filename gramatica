@@ -1,0 +1,3 @@
+expresion -> nombre | funcion | grafico grafico | (expresion)
+funcion -> circle realpositivo | box realpositivo realpositivo | move real real grafico | scale real real grafico | rotate real grafico | repeat natural real real grafico | define nombre grafico
+grafico -> nombre | expresion
