@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+#coding: utf8
+
 import sys
 
 from pyparsing import *
@@ -11,8 +14,7 @@ from optparse import OptionParser
 LPAREN = Literal("(").suppress()
 RPAREN = Literal(")").suppress()
 
-# natural contempla tambien el 0
-natural = Word(nums)
+natural = Word(nums) # natural contempla tambien el 0
 realpositivo = Combine(natural + Optional(Combine("." + Word(nums)))) | Combine("." + Word(nums))
 real = realpositivo | Combine(Literal("-") + realpositivo)
 
@@ -39,17 +41,31 @@ expresion = funcion_agr | nombre_definido
 grafico << (Group(OneOrMore(Group(expresion))) | LPAREN + grafico + RPAREN)
 grafico_agr << (expresion | LPAREN + grafico + RPAREN)
 
-# ===================================
-# Definicion de "acciones de parsing"
-# ===================================
+# =================================================
+# Funciones auxiliares de las "acciones de parsing"
+# =================================================
 
-ps_save = "gsave" + "\n"
-ps_restore = "\n" + "grestore"
+ps_save = "\n" + "gsave" + "\n"
+ps_restore = "\n" + "grestore" + "\n"
 
 tabla_nombres = {}
 
 def aislar(ps):
     return ps_save + ps + ps_restore
+
+def presult_a_string(pr):
+    r = ""
+    if isinstance(pr, ParseResults):
+        for x in pr:
+            r += presult_a_string(x)
+        return r
+
+    if isinstance(pr, str):
+        return pr + "\n"
+
+# ===================================
+# Definicion de "acciones de parsing"
+# ===================================
 
 def traducir_caja(tokens):
     ancho = tokens[1]
@@ -102,7 +118,7 @@ def traducir_definir(tokens):
 
     if nombre in psclave:
         raise Exception("La palabra " + nombre + " es una palabra reservada" +
-            " y no puede usarse como nombre nombre de un grafico.")
+            " y no puede usarse como nombre de un grafico.")
     
     tabla_nombres[nombre] = g
     return ""
@@ -115,6 +131,9 @@ def traducir_nombre(tokens):
 
     raise Exception("El nombre " + nombre + " no ha sido definido.")
 
+# =====================================================
+# Correspondencias entre tokens y "acciones de parsing"
+# =====================================================
 
 caja.setParseAction(traducir_caja)
 circulo.setParseAction(traducir_circulo)
@@ -125,21 +144,11 @@ repetir.setParseAction(traducir_repetir)
 definir.setParseAction(traducir_definir)
 nombre_definido.setParseAction(traducir_nombre)
 
-# =====================================
-# Funciones de generacion de Postscript
-# =====================================
+# ===========================
+# Funciones auxiliares varias
+# ===========================
 
-def presult_a_string(pr):
-    r = ""
-    if isinstance(pr, ParseResults):
-        for x in pr:
-            r += presult_a_string(x)
-        return r
-
-    if isinstance(pr, str):
-        return pr + "\n"
-
-def agregar_contexto(tr):
+def agregar_contexto(codigo_ps):
     encabezado = """
 5 dict begin
 /box {
@@ -149,61 +158,109 @@ def agregar_contexto(tr):
   0 0 1 0 360 arc closepath fill
 } def
 
-100 100 translate
-50 50 scale
 """
-    # XXX: Borrar el translate y scale de arriba que estan de mas.
-
     pie = """
 end
 showpage"""
 
-    return encabezado + tr + pie
+    return encabezado + codigo_ps + pie
+
+XMAX = float(612) 
+YMAX = float(792)
+COLS = 4
+FILAS = 6
+FILA_SIZE = YMAX/FILAS
+COL_SIZE = XMAX/COLS
+DX = COL_SIZE/2
+DY = FILA_SIZE/2
+
+def posicionar(posicion, contenido):
+    posx = posicion % COLS
+    posy = posicion/COLS
+
+    x = posx*COL_SIZE + DX
+    y = YMAX - (posy*FILA_SIZE + DY)
+
+    despl = "move %d %d " % (x, y)
+
+    return despl + "(" + contenido + ")\n"
+
+def escalar_inicial(contenido):
+    esc = "scale %s %s " % (options.scalex, options.scaley)
+    return esc + "(" + contenido + ")"
+
+def trasladar_inicial(contenido):
+    trans = "move %s %s " % (options.translatex, options.translatey)
+    return trans + "(" + contenido + ")"
 
 
 if __name__ == "__main__":
 
     # Definimos las opciones del script.
     optparser = OptionParser()
+
     optparser.add_option("-o", "--output", dest = "archivo_salida",
         default = "-", metavar = "ARCHIVO",
-        help = "escribir la salida en el archivo ARCHIVO. Si ARCHIVO es `-'," + 
+        help = "escribir la salida en el archivo ARCHIVO. Si ARCHIVO es `-'," +
             " usar la salida estandar.")
+    optparser.add_option("-g", "--grid", dest = "grid",
+        default = False, action = "store_true",
+        help = "ubicar el resultado de cada una de las entradas en una grilla")
+    optparser.add_option("--scalex", dest = "scalex",
+        default = "1", metavar = "FACTOR",
+        help = "escalar en X la salida segun el factor FACTOR.")
+    optparser.add_option("--scaley", dest = "scaley",
+        default = "1", metavar = "FACTOR",
+        help = "escalar en Y la salida segun el factor FACTOR.")
+    optparser.add_option("--translatex", dest = "translatex",
+        default = "0", metavar = "DX",
+        help = "trasladar en X segun DX. (La traslacion se produce antes que" +
+            " el escalamiento.)")
+    optparser.add_option("--translatey", dest = "translatey",
+        default = "0", metavar = "DY",
+        help = "trasladar en Y segun DY. (La traslacion se produce antes que" +
+            " el escalamiento.)")
+
+    
 
     (options, args) = optparser.parse_args()
 
     if len(args) == 0:
         # No se especificaron archivos de entrada, asi que leemos de stdin.
-        input = sys.stdin.read()
+        input = trasladar_inicial(escalar_inicial(sys.stdin.read()))
 
     else:
         # Se especificaron archivos de entrada. Usamos la concatenacion de
         # sus contenidos como entrada.
         input = ""
-        for fname in args:
+        for i, fname in enumerate(args):
             f = open(fname)
-            input += f.read()
+            fcontent = f.read()
+
+            fcontent = trasladar_inicial(escalar_inicial(fcontent))
+
+            if options.grid:
+                fcontent = posicionar(i, fcontent)
+
+            input += fcontent
+
             f.close()
 
     # El lenguaje F es case-insensitive.
     input = input.lower()
 
-    #try:
     presult = (grafico + stringEnd).parseString(input)
 
-    tr = presult_a_string(presult)
+    codigo_ps = presult_a_string(presult)
 
-    tr = agregar_contexto(tr)
+    codigo_ps = agregar_contexto(codigo_ps)
     
     if options.archivo_salida == "-":
-        print tr
+        # `-' quiere decir "salida estandar"
+        print codigo_ps
     else:
         fname = options.archivo_salida
         f = open(fname, "w")
-        f.write(tr)
+        f.write(codigo_ps)
         f.close()
-
-   # except Exception as e:
-   #     #print >> sys.stderr, e
-   #     raise e
 
