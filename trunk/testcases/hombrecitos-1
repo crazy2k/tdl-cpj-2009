@@ -1,0 +1,1 @@
+move -2 0 scale .25 .25 rotate 20 repeat 7 2.75 0 (circle 1 move -.25 -1 scale 1 -1 box .5 2.5 move 0 -1.5 repeat 2 0 -1.75 (move -.25 0 rotate -45 scale 1 -1 box .5 2 move .25 0 rotate 45 scale -1 -1 box .5 2 ))
