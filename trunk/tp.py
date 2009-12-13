@@ -1,4 +1,8 @@
+import sys
+
 from pyparsing import *
+from optparse import OptionParser
+
 
 # ================================
 # Definicion de gramatica y tokens
@@ -61,20 +65,20 @@ def traducir_circulo(tokens):
 def traducir_mover(tokens):
     dx = tokens[1]
     dy = tokens[2]
-    g = pr_a_string(tokens[3])
+    g = presult_a_string(tokens[3])
     ps = "%s %s translate %s" % (dx, dy, g)
     return aislar(ps)
 
 def traducir_rotar(tokens):
     a = tokens[1]
-    g = pr_a_string(tokens[2])
+    g = presult_a_string(tokens[2])
     ps = "%s rotate %s" % (a, g)
     return aislar(ps)
 
 def traducir_escalar(tokens):
     fx = tokens[1]
     fy = tokens[2]
-    g = pr_a_string(tokens[3])
+    g = presult_a_string(tokens[3])
     ps = "%s %s scale %s" % (fx, fy, g)
     return aislar(ps)
 
@@ -82,7 +86,7 @@ def traducir_repetir(tokens):
     n = tokens[1]
     dx = tokens[2]
     dy = tokens[3]
-    g = pr_a_string(tokens[4])
+    g = presult_a_string(tokens[4])
     ps = """%s {
 %s
 %s %s translate
@@ -92,7 +96,7 @@ def traducir_repetir(tokens):
 
 def traducir_definir(tokens):
     nombre = tokens[1]
-    g = pr_a_string(tokens[2])
+    g = presult_a_string(tokens[2])
 
     psclave = ["circle", "box", "rotate", "move", "scale", "repeat", "define"]
 
@@ -125,17 +129,17 @@ nombre_definido.setParseAction(traducir_nombre)
 # Funciones de generacion de Postscript
 # =====================================
 
-def pr_a_string(pr):
+def presult_a_string(pr):
     r = ""
     if isinstance(pr, ParseResults):
         for x in pr:
-            r += pr_a_string(x)
+            r += presult_a_string(x)
         return r
 
     if isinstance(pr, str):
         return pr + "\n"
 
-def agregar_encabezado(tr):
+def agregar_contexto(tr):
     encabezado = """
 5 dict begin
 /box {
@@ -157,37 +161,49 @@ showpage"""
     return encabezado + tr + pie
 
 
-def guardar_traduccion(tr, i):
-    tr = agregar_encabezado(tr)
-    f = open("salida-" + str(i) + ".ps", "w")
-    f.write(tr)
-    f.close()
+if __name__ == "__main__":
 
+    # Definimos las opciones del script.
+    optparser = OptionParser()
+    optparser.add_option("-o", "--output", dest = "archivo_salida",
+        default = "-", metavar = "ARCHIVO",
+        help = "escribir la salida en el archivo ARCHIVO. Si ARCHIVO es `-'," + 
+            " usar la salida estandar.")
 
-l = ["circle .5 box 1 1",
-    "circle .5 move 1.5 0 box 1 1",
-    "circle .5 move -1.5 0 rotate 45 box 1 1",
-    "rotate 45 (scale 1 2 circle .5 move -2 -.5 box 1 1)",
-    "move -1.75 0 scale .5 .5 repeat 8 1 0 circle .5",
-    "move -2 -2 repeat 4 0 1 repeat 2 .5 .5 repeat 4 1 0 box .5 .5",
-    "move -2 0 scale .25 .25 rotate 20 repeat 7 2.75 0 (circle 1 move -.25 -1 scale 1 -1 box .5 2.5 move 0 -1.5 repeat 2 0 -1.75 (move -.25 0 rotate -45 scale 1 -1 box .5 2 move .25 0 rotate 45 scale -1 -1 box .5 2 ))",
-    "define CRUZ (move -.5 -.25 box 1 .5 move -.25 -.5 box .5 1 ) move 1 1 CRUZ move -1 -1 rotate 45 CRUZ",
-    "define scale (move -.5 -.25 scale 1 .5 move -.25 -.5 scale .5 1 ) move 1 1 scale move -1 -1 rotate 45 scale"
-    ]
+    (options, args) = optparser.parse_args()
 
+    if len(args) == 0:
+        # No se especificaron archivos de entrada, asi que leemos de stdin.
+        input = sys.stdin.read()
 
+    else:
+        # Se especificaron archivos de entrada. Usamos la concatenacion de
+        # sus contenidos como entrada.
+        input = ""
+        for fname in args:
+            f = open(fname)
+            input += f.read()
+            f.close()
 
-i = 0
-for s in l:
-    pr = (grafico + stringEnd).parseString(s.lower())
+    # El lenguaje F es case-insensitive.
+    input = input.lower()
 
-    print "BLAH"
-    print pr
-    tr = pr_a_string(pr)
+    #try:
+    presult = (grafico + stringEnd).parseString(input)
 
-    guardar_traduccion(tr, i)
+    tr = presult_a_string(presult)
 
-    i = i + 1
+    tr = agregar_contexto(tr)
+    
+    if options.archivo_salida == "-":
+        print tr
+    else:
+        fname = options.archivo_salida
+        f = open(fname, "w")
+        f.write(tr)
+        f.close()
 
-
+   # except Exception as e:
+   #     #print >> sys.stderr, e
+   #     raise e
 
