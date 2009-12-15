@@ -264,3 +264,4 @@ if __name__ == "__main__":
         f.write(codigo_ps)
         f.close()
 
+# XXX: Ver el tema de -g con entrada estandar.
