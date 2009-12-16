@@ -38,7 +38,9 @@ funcion_agr = Group(funcion)
 
 expresion = funcion_agr | nombre_definido
 
-grafico << (Group(OneOrMore(Group(expresion))) | LPAREN + grafico + RPAREN)
+grafico << (Group(OneOrMore(Group(expresion) | Group(LPAREN + expresion + RPAREN))) |
+    Group(OneOrMore(Group(LPAREN + grafico + RPAREN))))
+
 grafico_agr << (expresion | LPAREN + grafico + RPAREN)
 
 # =================================================
@@ -117,7 +119,7 @@ def traducir_definir(tokens):
     psclave = ["circle", "box", "rotate", "move", "scale", "repeat", "define"]
 
     if nombre in psclave:
-        raise Exception("La palabra " + nombre + " es una palabra reservada" +
+        raise ErrorTP("La palabra " + nombre + " es una palabra reservada" +
             " y no puede usarse como nombre de un grafico.")
     
     tabla_nombres[nombre] = g
@@ -129,7 +131,7 @@ def traducir_nombre(tokens):
     if nombre in tabla_nombres:
         return tabla_nombres[nombre]
 
-    raise Exception("El nombre " + nombre + " no ha sido definido.")
+    raise ErrorTP("El nombre " + nombre + " no ha sido definido.")
 
 # =====================================================
 # Correspondencias entre tokens y "acciones de parsing"
@@ -147,6 +149,12 @@ nombre_definido.setParseAction(traducir_nombre)
 # ===========================
 # Funciones auxiliares varias
 # ===========================
+
+
+class ErrorTP(Exception):
+    def __init__(self, msg):
+        Exception.__init__(self, "ERROR: " + msg)
+
 
 def agregar_contexto(codigo_ps):
     encabezado = """
@@ -249,19 +257,25 @@ if __name__ == "__main__":
     # El lenguaje F es case-insensitive.
     input = input.lower()
 
-    presult = (grafico + stringEnd).parseString(input)
+    try:
+        print input
 
-    codigo_ps = presult_a_string(presult)
+        presult = (grafico + stringEnd).parseString(input)
 
-    codigo_ps = agregar_contexto(codigo_ps)
-    
-    if options.archivo_salida == "-":
-        # `-' quiere decir "salida estandar"
-        print codigo_ps
-    else:
-        fname = options.archivo_salida
-        f = open(fname, "w")
-        f.write(codigo_ps)
-        f.close()
+        codigo_ps = presult_a_string(presult)
+
+        codigo_ps = agregar_contexto(codigo_ps)
+        
+        if options.archivo_salida == "-":
+            # `-' quiere decir "salida estandar"
+            print codigo_ps
+        else:
+            fname = options.archivo_salida
+            f = open(fname, "w")
+            f.write(codigo_ps)
+            f.close()
+    except Exception as e:
+        print >> sys.stderr, e
+        
 
 # XXX: Ver el tema de -g con entrada estandar.

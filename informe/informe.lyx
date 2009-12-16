@@ -20,7 +20,7 @@
 \font_tt_scale 100
 
 \graphics default
-\paperfontsize 11
+\paperfontsize 10
 \spacing single
 \use_hyperref false
 \papersize a4paper
@@ -395,12 +395,439 @@ thispagestyle{empty}
 Introducción
 \end_layout
 
+\begin_layout Standard
+En el presente trabajo práctico desarrollamos un traductor de lenguaje
+ F al lenguaje PostScript.
+ Las siguientes secciones presentan una gramatica definida para reconocer
+ el lenguaje F, junto con la definición de los tipos de token que componen
+ el lenguaje, la descripción de la implementción de la solución, y ejemplos
+ de expresiones validas e invalidas con sus correspondientes resultados.
+ 
+\end_layout
+
 \begin_layout Section
 Gramática
 \end_layout
 
 \begin_layout Standard
 La gramática propuesta para el lenguaje F es la siguiente:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $G=<V_{T},V_{N},P,S>$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Con:
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $V_{T}=\{circle,box,move,scale,rotate,repeat,define,nombre,(,)\}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $V_{N}=\{GRAFICO,GRAFICO\_AGR,EXPRESION,FUNCION,CIRCULO,CAJA,MOVER,$
+\end_inset
+
+
+\begin_inset Formula $ESCALAR,ROTAR,REPETIR,DEFINIR\}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $S=GRAFICO$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Con 
+\begin_inset Formula $P$
+\end_inset
+
+:
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+\begin_inset Formula $GRAFICO\longrightarrow EXPRESION^{+}\,|\,'('EXPRESION')'\,|\,('('GRAFICO')')^{+}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $GRAFICO\_AGR\longrightarrow EXPRESION\,|\,'('GRAFICO')'$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $FUNCION\longrightarrow CIRCULO\,|\, CAJA\,|\, MOVER\,|\, ESCALAR\,|\, ROTAR\,|\, REPETIR\,|\, DEFINIR$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $CIRCULO\longrightarrow circle\, realpositivo$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $CAJA\longrightarrow box\, realpositivo\, realpositivo$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $MOVER\longrightarrow move\, real\, real\, GRAFICO\_AGR$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $ESCALAR\longrightarrow scale\, real\, real\, GRAFICO\_AGR$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $ROTAR\longrightarrow rotate\, real\, GRAFICO\_AGR$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $REPETIR\longrightarrow repeat\, natural\, real\, real\, GRAFICO\_AGR$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $DEFINIR\longrightarrow define\, nombre\, GRAFICO\_AGR$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $EXPRESION\longrightarrow FUNCION\,|\, nombre$
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+Tokens:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Tabular
+<lyxtabular version="3" rows="12" columns="2">
+<features>
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Token
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Descripción informal
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $natural$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Cualquier constante numérica natural
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $realpositivo$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Cualquier constante numérica real positiva
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $real$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Cualquier constante numérica real
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $nombre$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Secuencia de caracteres alfanuméricos
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $circle$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $box$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $move$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $scale$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Secuencia de caracteres correspondiente a cada token
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $rotate$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $repeat$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $define$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
 \end_layout
 
 \begin_layout Standard
@@ -421,8 +848,14 @@ Implementación de la solución
 \end_layout
 
 \begin_layout Standard
-El parser utilizado pertenece a la familia de parsers recursivos descendentes.
- La implementación usada es la de la librería PyParsing.
+Para la implementación del traductor utilizamos el lenguaje de programación
+ Python, ya que es un lenguaje cuya sintaxis es sencilla, e incluye una
+ importante colección de módulos estándar que nos facilitaron el desarrollo
+ del mismo.
+ El parser utilizado pertenece a la familia de parsers recursivos descendentes.
+ La implementación usada es la de la librería PyParsing que permite una
+ definicion amigable para escribir reglas gramaticales y obtener buen soporte
+ en la sobrecarga de operadores.
 \end_layout
 
 \begin_layout Standard
@@ -439,7 +872,34 @@ Poner todo el código.
 
 \end_inset
 
+Modo de uso 
+\end_layout
 
+\begin_layout Standard
+El traductor puede ser invocado por linea de comandos con la siguientes
+ posibilidades: 
+\end_layout
+
+\begin_layout Standard
+* ingresar la entrada por la entrada estándar, 
+\end_layout
+
+\begin_layout Standard
+* ingresar la entrada mediante uno o más archivos, 
+\end_layout
+
+\begin_layout Standard
+* recibir la salida por la salida estándar, 
+\end_layout
+
+\begin_layout Standard
+* recibir la salida en un archivo.
+ 
+\end_layout
+
+\begin_layout Standard
+Funcionalidad adicional: * modo "grid" ..
+ 
 \end_layout
 
 \begin_layout Section
@@ -447,23 +907,37 @@ Ejemplos
 \end_layout
 
 \begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-Ejemplos erroneos: casos en que se intente hacer un define con un nombre
- igual al de alguna palabra reservada, intento de usar el nombre de un grafico
- que no fue definido.
- Ejemplos validos: poner los dibujitos de nuestros ejemplos.
+Expresiones válidas 
 \end_layout
 
-\end_inset
-
-
+\begin_layout Standard
+En el directorio *Ejemplos expresiones válidas* se puede encontrar una serie
+ de archivos con expresiones válidas (incluyendo los ejemplos de la catedra).
+ Los mismos pueden correrse como se indica a continuación:
 \end_layout
 
-\begin_layout Section
-Conclusiones
+\begin_layout Standard
+Los resultados obtenidos se encuentran en el directorio *Resultados expresiones
+ validas* 
+\end_layout
+
+\begin_layout Standard
+Expresiones inválidas 
+\end_layout
+
+\begin_layout Standard
+En el directorio *Ejemplos expresiones inválidas* se puede encontrar una
+ serie de archivos con expresiones inválidas.
+ Los mismos pueden correrse como se indica a continuación: Los resultados
+ obtenidos en cada caso son los siguientes: 
+\end_layout
+
+\begin_layout Standard
+Caso: Error: 
+\end_layout
+
+\begin_layout Standard
+Resultado obtenido:
 \end_layout
 
 \end_body
