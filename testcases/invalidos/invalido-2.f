@@ -1,1 +1,1 @@
-rotate 10 10
+rotate 10 cosa
