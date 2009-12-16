@@ -1,0 +1,118 @@
+
+5 dict begin
+/box {
+  0 0 moveto 0 1 lineto 1 1 lineto 1 0 lineto closepath fill
+} def
+/circ {
+  0 0 1 0 360 arc closepath fill
+} def
+
+
+gsave
+300 600 translate 
+gsave
+50 50 scale 
+gsave
+-2 0 translate 
+gsave
+.25 .25 scale 
+gsave
+20 rotate 
+gsave
+7 {
+
+gsave
+1 1 scale circ
+grestore
+
+
+gsave
+-.25 -1 translate 
+gsave
+1 -1 scale 
+gsave
+.5 2.5 scale box
+grestore
+
+
+grestore
+
+
+grestore
+
+
+gsave
+0 -1.5 translate 
+gsave
+2 {
+
+gsave
+-.25 0 translate 
+gsave
+-45 rotate 
+gsave
+1 -1 scale 
+gsave
+.5 2 scale box
+grestore
+
+
+grestore
+
+
+grestore
+
+
+grestore
+
+
+gsave
+.25 0 translate 
+gsave
+45 rotate 
+gsave
+-1 -1 scale 
+gsave
+.5 2 scale box
+grestore
+
+
+grestore
+
+
+grestore
+
+
+grestore
+
+
+0 -1.75 translate
+} repeat
+grestore
+
+
+grestore
+
+
+2.75 0 translate
+} repeat
+grestore
+
+
+grestore
+
+
+grestore
+
+
+grestore
+
+
+grestore
+
+
+grestore
+
+
+end
+showpage
