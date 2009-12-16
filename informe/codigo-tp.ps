@@ -1,0 +1,1385 @@
+%!PS-Adobe-3.0
+%%Title: tp.py
+%%For: Pablo
+%%Creator: a2ps version 4.14
+%%CreationDate: Wed Dec 16 07:18:52 2009
+%%BoundingBox: 24 24 588 768
+%%DocumentData: Clean7Bit
+%%Orientation: Landscape
+%%Pages: 3
+%%PageOrder: Ascend
+%%DocumentMedia: Letter 612 792 0 () ()
+%%DocumentNeededResources: font Courier
+%%+ font Courier-Bold
+%%+ font Courier-BoldOblique
+%%+ font Courier-Oblique
+%%+ font Helvetica
+%%+ font Helvetica-Bold
+%%+ font Symbol
+%%+ font Times-Bold
+%%+ font Times-Roman
+%%DocumentProcessColors: Black 
+%%DocumentSuppliedResources: procset a2ps-a2ps-hdr
+%%+ procset a2ps-black+white-Prolog
+%%+ encoding ISO-8859-1Encoding
+%%EndComments
+/a2psdict 200 dict def
+a2psdict begin
+%%BeginProlog
+%%Copyright: (c) 1988, 89, 90, 91, 92, 93 Miguel Santana
+%%Copyright: (c) 1995, 96, 97, 98 Akim Demaille, Miguel Santana
+% Check PostScript language level.
+/languagelevel where {
+  pop /gs_languagelevel languagelevel def
+} {
+  /gs_languagelevel 1 def
+} ifelse
+
+% EPSF import as in the Red Book
+/BeginInclude {
+  /b4_Inc_state save def    		% Save state for cleanup
+  /dict_count countdictstack def	% Count objects on dict stack
+  /op_count count 1 sub def		% Count objects on operand stack 
+  userdict begin
+    0 setgray 0 setlinecap
+    1 setlinewidth 0 setlinejoin
+    10 setmiterlimit [ ] 0 setdash newpath
+    gs_languagelevel 1 ne {
+      false setstrokeadjust false setoverprint 
+    } if
+} bind def
+
+/EndInclude {
+  count op_count sub { pos } repeat	% Clean up stacks
+  countdictstack dict_count sub { end } repeat
+  b4_Inc_state restore
+} bind def
+
+/BeginEPSF {
+  BeginInclude
+  /showpage { } def
+} bind def
+
+/EndEPSF {
+  EndInclude
+} bind def
+
+% Page prefeed
+/page_prefeed {         % bool -> -
+  statusdict /prefeed known {
+    statusdict exch /prefeed exch put
+  } {
+    pop
+  } ifelse
+} bind def
+
+/deffont {
+  findfont exch scalefont def
+} bind def
+
+/reencode_font {
+  findfont reencode 2 copy definefont pop def
+} bind def
+
+% Function c-show (str => -)
+% centers text only according to x axis.
+/c-show { 
+  dup stringwidth pop
+  2 div neg 0 rmoveto
+  show
+} bind def
+
+% Function l-show (str => -)
+% prints texts so that it ends at currentpoint
+/l-show {
+  dup stringwidth pop neg 
+  0 
+  rmoveto show
+} bind def
+
+% center-fit show (str w => -)
+% show centered, and scale currentfont so that the width is less than w
+/cfshow {
+  exch dup stringwidth pop
+  % If the title is too big, try to make it smaller
+  3 2 roll 2 copy
+  gt
+  { % if, i.e. too big
+    exch div
+    currentfont exch scalefont setfont
+  } { % ifelse
+    pop pop 
+  }
+  ifelse
+  c-show			% center title
+} bind def
+
+% Return the y size of the current font
+% - => fontsize
+/currentfontsize {
+  currentfont /FontType get 0 eq {
+    currentfont /FontMatrix get 3 get
+  }{
+    currentfont /FontMatrix get 3 get 1000 mul
+  } ifelse
+} bind def
+
+% reencode the font
+% <encoding-vector> <fontdict> -> <newfontdict>
+/reencode { %def
+  dup length 5 add dict begin
+    { %forall
+      % <vector> <key> <val>
+      1 index /FID ne 
+      { def }{ pop pop } ifelse
+    } forall
+    /Encoding exch def % -
+
+    % Use the font's bounding box to determine the ascent, descent,
+    % and overall height; don't forget that these values have to be
+    % transformed using the font's matrix.
+    % We use `load' because sometimes BBox is executable, sometimes not.
+    % Since we need 4 numbers an not an array avoid BBox from being executed
+    /FontBBox load aload pop
+    FontMatrix transform /Ascent exch def pop
+    FontMatrix transform /Descent exch def pop
+    /FontHeight Ascent Descent sub def
+
+    % Get the underline position and thickness if they're defined.
+    % Use 1 if they are not defined.
+    currentdict /FontInfo 2 copy known
+    { get
+      /UnderlinePosition 2 copy % <FontInfo> /UP <FontInfo> /UP
+      2 copy known
+      { get }{ pop pop 1 } ifelse
+      0 exch FontMatrix transform exch pop
+      def % <FontInfo>
+
+      /UnderlineThickness 2 copy % <FontInfo> /UT <FontInfo> /UT
+      2 copy known
+      { get }{ pop pop 1 } ifelse
+      0 exch FontMatrix transform exch pop
+      def % <FontInfo>
+      pop % -
+    }{ pop pop
+    } ifelse
+
+    currentdict
+  end 
+} bind def
+
+% composite fonts for ASCII-EUC mixed strings
+% Version 1.2 1/31/1990
+% Original Ken'ichi HANDA (handa@etl.go.jp)
+% Modified Norio Katayama (katayama@rd.nacsis.ac.jp),1998
+% Extend & Fix Koji Nakamaru (maru@on.cs.keio.ac.jp), 1999
+% Anyone can freely copy, modify, distribute this program.
+
+/copyfont {	% font-dic extra-entry-count  copyfont  font-dic
+	1 index maxlength add dict begin
+	{	1 index /FID ne 2 index /UniqueID ne and
+		{def} {pop pop} ifelse
+	} forall
+	currentdict
+	end
+} bind def
+
+/compositefont { % ASCIIFontName EUCFontName RomanScale RomanOffset Rot(T/F) compositefont font
+    /RomanRotation exch def
+    /RomanOffset exch def
+    /RomanScale exch def
+    userdict /fixeucfont_dict known not {
+	userdict begin
+	    /fixeucfont_dict 2 dict begin
+		/UpperByteEncoding [
+		    16#00 1 16#20 { pop 0 } for
+		    16#21 1 16#28 { 16#20 sub } for
+		    16#29 1 16#2F { pop 0 } for
+		    16#30 1 16#74 { 16#27 sub } for
+		    16#75 1 16#FF { pop 0 } for
+		] def
+	        /LowerByteEncoding [
+		    16#00 1 16#A0 { pop /.notdef } for
+		    16#A1 1 16#FE { 16#80 sub 16 2 string cvrs
+				    (cXX) dup 1 4 -1 roll
+				    putinterval cvn } for
+		    /.notdef
+		] def
+		currentdict
+	    end def
+	end
+    } if
+    findfont dup /FontType get 0 eq {
+	14 dict begin
+	    %
+	    % 7+8 bit EUC font
+	    %
+	    12 dict begin
+		/EUCFont exch def
+		/FontInfo (7+8 bit EUC font) readonly def
+		/PaintType 0 def
+		/FontType 0 def
+		/FontMatrix matrix def
+		% /FontName
+		/Encoding fixeucfont_dict /UpperByteEncoding get def
+		/FMapType 2 def
+		EUCFont /WMode known
+		{ EUCFont /WMode get /WMode exch def }
+		{ /WMode 0 def } ifelse
+		/FDepVector [
+		    EUCFont /FDepVector get 0 get
+		    [ 16#21 1 16#28 {} for 16#30 1 16#74 {} for ]
+		    {
+			13 dict begin
+			    /EUCFont EUCFont def
+			    /UpperByte exch 16#80 add def	
+			    % /FontName
+			    /FontInfo (EUC lower byte font) readonly def
+			    /PaintType 0 def
+			    /FontType 3 def
+			    /FontMatrix matrix def
+			    /FontBBox {0 0 0 0} def
+			    /Encoding
+				fixeucfont_dict /LowerByteEncoding get def
+			    % /UniqueID
+			    % /WMode
+			    /BuildChar {
+				gsave
+				exch dup /EUCFont get setfont
+				/UpperByte get
+				2 string
+				dup 0 4 -1 roll put
+				dup 1 4 -1 roll put
+				dup stringwidth setcharwidth
+				0 0 moveto show
+				grestore
+			    } bind def
+			    currentdict
+			end
+			/lowerbytefont exch definefont
+		    } forall
+		] def
+		currentdict
+	    end
+	    /eucfont exch definefont
+	    exch
+	    findfont 1 copyfont dup begin
+		RomanRotation {
+			/FontMatrix FontMatrix
+			[ 0 RomanScale neg RomanScale 0 RomanOffset neg 0 ]
+			matrix concatmatrix def
+		}{
+			/FontMatrix FontMatrix
+			[ RomanScale 0 0 RomanScale 0 RomanOffset ] matrix concatmatrix
+			def
+			/CDevProc
+			    {pop pop pop pop 0 exch -1000 exch 2 div 880} def
+		} ifelse
+	    end
+	    /asciifont exch definefont
+	    exch
+	    /FDepVector [ 4 2 roll ] def
+	    /FontType 0 def
+	    /WMode 0 def
+	    /FMapType 4 def
+	    /FontMatrix matrix def
+	    /Encoding [0 1] def
+	    /FontBBox {0 0 0 0} def
+%	    /FontHeight 1.0 def % XXXX
+	    /FontHeight RomanScale 1.0 ge { RomanScale }{ 1.0 } ifelse def
+	    /Descent -0.3 def   % XXXX
+	    currentdict
+	end
+	/tmpfont exch definefont
+	pop
+	/tmpfont findfont
+    }{
+	pop findfont 0 copyfont
+    } ifelse
+} def	
+
+/slantfont {	% FontName slant-degree  slantfont  font'
+    exch findfont 1 copyfont begin
+    [ 1 0 4 -1 roll 1 0 0 ] FontMatrix exch matrix concatmatrix
+    /FontMatrix exch def
+    currentdict
+    end
+} def
+
+% Function print line number (<string> # -)
+/# {
+  gsave
+    sx cw mul neg 2 div 0 rmoveto
+    f# setfont
+    c-show
+  grestore
+} bind def
+
+% -------- Some routines to enlight plain b/w printings ---------
+
+% Underline
+% width --
+/dounderline {
+  currentpoint
+  gsave
+    moveto
+    0 currentfont /Descent get currentfontsize mul rmoveto
+    0 rlineto
+    stroke
+  grestore
+} bind def
+
+% Underline a string
+% string --
+/dounderlinestring {
+  stringwidth pop
+  dounderline
+} bind def
+
+/UL {
+  /ul exch store
+} bind def
+
+% Draw a box of WIDTH wrt current font
+% width --
+/dobox {
+  currentpoint
+  gsave
+    newpath
+    moveto
+    0 currentfont /Descent get currentfontsize mul rmoveto
+    dup 0 rlineto
+    0 currentfont /FontHeight get currentfontsize mul rlineto
+    neg 0 rlineto
+    closepath
+    stroke
+  grestore
+} bind def
+
+/BX {
+  /bx exch store
+} bind def
+
+% Box a string
+% string --
+/doboxstring {
+  stringwidth pop
+  dobox
+} bind def
+
+%
+% ------------- Color routines ---------------
+%
+/FG /setrgbcolor load def
+
+% Draw the background
+% width --
+/dobackground {
+  currentpoint
+  gsave
+    newpath
+    moveto
+    0 currentfont /Descent get currentfontsize mul rmoveto
+    dup 0 rlineto
+    0 currentfont /FontHeight get currentfontsize mul rlineto
+    neg 0 rlineto
+    closepath
+    bgcolor aload pop setrgbcolor
+    fill
+  grestore
+} bind def
+
+% Draw bg for a string
+% string --
+/dobackgroundstring {
+  stringwidth pop
+  dobackground
+} bind def
+
+
+/BG {
+  dup /bg exch store
+  { mark 4 1 roll ] /bgcolor exch store } if
+} bind def
+
+
+/Show {
+  bg { dup dobackgroundstring } if
+  ul { dup dounderlinestring } if
+  bx { dup doboxstring } if
+  show
+} bind def
+
+% Function T(ab), jumps to the n-th tabulation in the current line
+/T {
+  cw mul x0 add
+  bg { dup currentpoint pop sub dobackground } if
+  ul { dup currentpoint pop sub dounderline } if
+  bx { dup currentpoint pop sub dobox } if
+  y0 moveto
+} bind def
+
+% Function n: move to the next line
+/n {
+  /y0 y0 bfs sub store
+  x0 y0 moveto
+} bind def
+
+% Function N: show and move to the next line
+/N {
+  Show
+  /y0 y0 bfs sub store
+  x0 y0 moveto
+} bind def
+
+/S {
+  Show
+} bind def
+
+%%BeginResource: procset a2ps-a2ps-hdr 2.0 2
+%%Copyright: (c) 1988, 89, 90, 91, 92, 93 Miguel Santana
+%%Copyright: (c) 1995, 96, 97, 98 Akim Demaille, Miguel Santana
+% Function title: prints page header.
+% <ct> <rt> <lt> are passed as argument
+/title { 
+  % 1. Draw the background
+  x v get y v get moveto
+  gsave
+    0 th 2 div neg rmoveto 
+    th setlinewidth
+    0.95 setgray
+    pw 0 rlineto stroke
+  grestore
+  % 2. Border it
+  gsave
+    0.7 setlinewidth
+    pw 0 rlineto
+    0 th neg rlineto
+    pw neg 0 rlineto
+    closepath stroke
+  grestore
+  % stk: ct rt lt
+  x v get y v get th sub 1 add moveto
+%%IncludeResource: font Helvetica
+  fHelvetica fnfs 0.8 mul scalefont setfont
+  % 3. The left title
+  gsave
+    dup stringwidth pop fnfs 0.8 mul add exch % leave space took on stack
+    fnfs 0.8 mul hm rmoveto
+    show			% left title
+  grestore
+  exch
+  % stk: ct ltw rt
+  % 4. the right title
+  gsave
+    dup stringwidth pop fnfs 0.8 mul add exch % leave space took on stack
+    dup
+    pw exch stringwidth pop fnfs 0.8 mul add sub
+    hm
+    rmoveto
+    show			% right title
+  grestore
+  % stk: ct ltw rtw
+  % 5. the center title
+  gsave
+    pw 3 1 roll
+    % stk: ct pw ltw rtw
+    3 copy 
+    % Move to the center of the left room
+    sub add 2 div hm rmoveto
+    % What is the available space in here?
+    add sub fnfs 0.8 mul sub fnfs 0.8 mul sub
+    % stk: ct space_left
+%%IncludeResource: font Helvetica-Bold
+  fHelvetica-Bold fnfs scalefont setfont
+    cfshow
+  grestore
+} bind def
+
+% Function border: prints virtual page border
+/border { %def
+  gsave				% print four sides
+    0 setgray
+    x v get y v get moveto
+    0.7 setlinewidth		% of the square
+    pw 0 rlineto
+    0 ph neg rlineto
+    pw neg 0 rlineto
+    closepath stroke
+  grestore
+} bind def
+
+% Function water: prints a water mark in background
+/water { %def
+  gsave
+    scx scy moveto rotate
+%%IncludeResource: font Times-Bold
+  fTimes-Bold 100 scalefont setfont
+    .97 setgray
+    dup stringwidth pop 2 div neg -50 rmoveto
+    show
+  grestore
+} bind def
+
+% Function rhead: prints the right header
+/rhead {  %def
+  lx ly moveto
+  fHelvetica fnfs 0.8 mul scalefont setfont
+  l-show
+} bind def
+
+% Function footer (cf rf lf -> -)
+/footer {
+  fHelvetica fnfs 0.8 mul scalefont setfont
+  dx dy moveto
+  show
+
+  snx sny moveto
+  l-show
+  
+  fnx fny moveto
+  c-show
+} bind def
+%%EndResource
+%%BeginResource: procset a2ps-black+white-Prolog 2.0 1
+
+% Function T(ab), jumps to the n-th tabulation in the current line
+/T { 
+  cw mul x0 add y0 moveto
+} bind def
+
+% Function n: move to the next line
+/n { %def
+  /y0 y0 bfs sub store
+  x0 y0 moveto
+} bind def
+
+% Function N: show and move to the next line
+/N {
+  Show
+  /y0 y0 bfs sub store
+  x0 y0 moveto
+}  bind def
+
+/S {
+  Show
+} bind def
+
+/p {
+  false UL
+  false BX
+  fCourier bfs scalefont setfont
+  Show
+} bind def
+
+/sy {
+  false UL
+  false BX
+  fSymbol bfs scalefont setfont
+  Show
+} bind def
+
+/k {
+  false UL
+  false BX
+  fCourier-Oblique bfs scalefont setfont
+  Show
+} bind def
+
+/K {
+  false UL
+  false BX
+  fCourier-Bold bfs scalefont setfont
+  Show
+} bind def
+
+/c {
+  false UL
+  false BX
+  fCourier-Oblique bfs scalefont setfont
+  Show
+} bind def
+
+/C {
+  false UL
+  false BX
+  fCourier-BoldOblique bfs scalefont setfont
+  Show 
+} bind def
+
+/l {
+  false UL
+  false BX
+  fHelvetica bfs scalefont setfont
+  Show
+} bind def
+
+/L {
+  false UL
+  false BX
+  fHelvetica-Bold bfs scalefont setfont
+  Show 
+} bind def
+
+/str{
+  false UL
+  false BX
+  fTimes-Roman bfs scalefont setfont
+  Show
+} bind def
+
+/e{
+  false UL
+  true BX
+  fHelvetica-Bold bfs scalefont setfont
+  Show
+} bind def
+
+%%EndResource
+%%EndProlog
+%%BeginSetup
+%%IncludeResource: font Courier
+%%IncludeResource: font Courier-Oblique
+%%IncludeResource: font Courier-Bold
+%%IncludeResource: font Times-Roman
+%%IncludeResource: font Symbol
+%%IncludeResource: font Courier-BoldOblique
+%%BeginResource: encoding ISO-8859-1Encoding
+/ISO-8859-1Encoding [
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/space /exclam /quotedbl /numbersign /dollar /percent /ampersand /quoteright 
+/parenleft /parenright /asterisk /plus /comma /minus /period /slash 
+/zero /one /two /three /four /five /six /seven 
+/eight /nine /colon /semicolon /less /equal /greater /question 
+/at /A /B /C /D /E /F /G 
+/H /I /J /K /L /M /N /O 
+/P /Q /R /S /T /U /V /W 
+/X /Y /Z /bracketleft /backslash /bracketright /asciicircum /underscore 
+/quoteleft /a /b /c /d /e /f /g 
+/h /i /j /k /l /m /n /o 
+/p /q /r /s /t /u /v /w 
+/x /y /z /braceleft /bar /braceright /asciitilde /.notdef 
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef /.notdef 
+/space /exclamdown /cent /sterling /currency /yen /brokenbar /section 
+/dieresis /copyright /ordfeminine /guillemotleft /logicalnot /hyphen /registered /macron 
+/degree /plusminus /twosuperior /threesuperior /acute /mu /paragraph /bullet 
+/cedilla /onesuperior /ordmasculine /guillemotright /onequarter /onehalf /threequarters /questiondown 
+/Agrave /Aacute /Acircumflex /Atilde /Adieresis /Aring /AE /Ccedilla 
+/Egrave /Eacute /Ecircumflex /Edieresis /Igrave /Iacute /Icircumflex /Idieresis 
+/Eth /Ntilde /Ograve /Oacute /Ocircumflex /Otilde /Odieresis /multiply 
+/Oslash /Ugrave /Uacute /Ucircumflex /Udieresis /Yacute /Thorn /germandbls 
+/agrave /aacute /acircumflex /atilde /adieresis /aring /ae /ccedilla 
+/egrave /eacute /ecircumflex /edieresis /igrave /iacute /icircumflex /idieresis 
+/eth /ntilde /ograve /oacute /ocircumflex /otilde /odieresis /divide 
+/oslash /ugrave /uacute /ucircumflex /udieresis /yacute /thorn /ydieresis 
+] def
+%%EndResource
+% Initialize page description variables.
+/sh 612 def
+/sw 792 def
+/llx 24 def
+/urx 768 def
+/ury 588 def
+/lly 24 def
+/#copies 1 def
+/th 15.000000 def
+/fnfs 11 def
+/bfs 7.493857 def
+/cw 4.496314 def
+
+% Dictionary for ISO-8859-1 support
+/iso1dict 8 dict begin
+  /fCourier ISO-8859-1Encoding /Courier reencode_font
+  /fCourier-Bold ISO-8859-1Encoding /Courier-Bold reencode_font
+  /fCourier-BoldOblique ISO-8859-1Encoding /Courier-BoldOblique reencode_font
+  /fCourier-Oblique ISO-8859-1Encoding /Courier-Oblique reencode_font
+  /fHelvetica ISO-8859-1Encoding /Helvetica reencode_font
+  /fHelvetica-Bold ISO-8859-1Encoding /Helvetica-Bold reencode_font
+  /fTimes-Bold ISO-8859-1Encoding /Times-Bold reencode_font
+  /fTimes-Roman ISO-8859-1Encoding /Times-Roman reencode_font
+currentdict end def
+/bgcolor [ 0 0 0 ] def
+/bg false def
+/ul false def
+/bx false def
+% The font for line numbering
+/f# /Helvetica findfont bfs .6 mul scalefont def
+/fSymbol /Symbol findfont def
+/hm fnfs 0.25 mul def
+/pw
+   cw 81.400000 mul
+def
+/ph
+   522.321860 th add
+def
+/pmw urx llx sub pw 2 mul sub 1 div def
+/pmh 0 def
+/v 0 def
+/x [
+  0
+  dup pmw add pw add
+] def
+/y [
+  pmh ph add 0 mul ph add
+  dup
+] def
+/scx sw 2 div def
+/scy sh 2 div def
+/snx urx def
+/sny lly 2 add def
+/dx llx def
+/dy sny def
+/fnx scx def
+/fny dy def
+/lx snx def
+/ly ury fnfs 0.8 mul sub def
+/sx 0 def
+/tab 8 def
+/x0 0 def
+/y0 0 def
+%%EndSetup
+
+%%Page: (1-2) 1
+%%BeginPageSetup
+/pagesave save def
+sh 0 translate 90 rotate
+%%EndPageSetup
+iso1dict begin
+gsave
+llx lly 12 add translate
+/v 0 store
+/x0 x v get 3.147420 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(#!/usr/bin/env python) c n
+(#coding: utf8) N
+() p n
+(import) K
+( sys) p n
+() N
+(from) K
+( pyparsing ) p
+(import) K
+( *) p n
+(from) K
+( optparse ) p
+(import) K
+( OptionParser) p n
+() N
+() N
+(# ================================) c n
+(# Definicion de gramatica y tokens) N
+(# ================================) N
+() p n
+(LPAREN = Literal\(") S
+(\() str
+("\).suppress\(\)) p n
+(RPAREN = Literal\(") S
+(\)) str
+("\).suppress\(\)) p n
+() N
+(natural = Word\(nums\) ) S
+(# natural contempla tambien el 0) c n
+(realpositivo = Combine\(natural + Optional\(Combine\(") p
+(.) str
+(" + Word\(nums\)\)\)\) | Combine\() p n
+(") S
+(.) str
+(" + Word\(nums\)\)) p n
+(real = realpositivo | Combine\(Literal\(") S
+(-) str
+("\) + realpositivo\)) p n
+() N
+(expresion = Forward\(\)) N
+() N
+(nombre_a_definir = Word\(alphanums\)) N
+(nombre_definido = Word\(alphanums\)) N
+() N
+(circulo = Literal\(") S
+(circle) str
+("\) + realpositivo ) p n
+(caja = Literal\(") S
+(box) str
+("\) + realpositivo + realpositivo) p n
+(mover = Literal\(") S
+(move) str
+("\) + real + real + expresion) p n
+(escalar = Literal\(") S
+(scale) str
+("\) + real + real + expresion) p n
+(rotar = Literal\(") S
+(rotate) str
+("\) + real + expresion) p n
+(repetir = Literal\(") S
+(repeat) str
+("\) + natural + real + real + expresion) p n
+(definir = Literal\(") S
+(define) str
+("\) + nombre_a_definir + expresion) p n
+() N
+(funcion = circulo | caja | mover | escalar | rotar | repetir | definir) N
+() N
+(expresion << Group\(funcion | LPAREN + OneOrMore\(expresion\) + RPAREN ) N
+(    | nombre_definido\)) N
+() N
+(# =================================================) c n
+(# Funciones auxiliares de las "acciones de parsing") N
+(# =================================================) N
+() p n
+(ps_save = ") S
+(\\n) str
+(" + ") p
+(gsave) str
+(" + ") p
+(\\n) str
+(") p n
+(ps_restore = ") S
+(\\n) str
+(" + ") p
+(grestore) str
+(" + ") p
+(\\n) str
+(") p n
+() N
+(PSCLAVE = [") S
+(circle) str
+(", ") p
+(box) str
+(", ") p
+(rotate) str
+(", ") p
+(move) str
+(", ") p
+(scale) str
+(", ") p
+(repeat) str
+(", ") p
+(define) str
+("]) p n
+() N
+(tabla_nombres = {}) N
+() N
+(def) K
+( aislar\(ps\):) p n
+(    ) S
+(return) K
+( ps_save + ps + ps_restore) p n
+() N
+(def) K
+( presult_a_string\(pr\):) p n
+(    r = "") N
+(    ) S
+(if) K
+( isinstance\(pr, ParseResults\):) p n
+(        ) S
+(for) K
+( x ) p
+(in) K
+( pr:) p n
+(            r += presult_a_string\(x\)) N
+(        ) S
+(return) K
+( r) p n
+() N
+(    ) S
+(if) K
+( isinstance\(pr, str\):) p n
+(        ) S
+(return) K
+( pr + ") p
+(\\n) str
+(") p n
+() N
+(# ===================================) c n
+(# Definicion de "acciones de parsing") N
+(# ===================================) N
+() p n
+(def) K
+( traducir_caja\(tokens\):) p n
+(    ancho = tokens[1]) N
+(tp.py) (Page 1/5) (Dec 16, 09 3:56) title
+border
+/v 1 store
+/x0 x v get 3.147420 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(    altura = tokens[2]) p n
+(    ps = ") S
+(%s %s scale box) str
+(" % \(ancho, altura\)) p n
+(    ) S
+(return) K
+( aislar\(ps\)) p n
+() N
+(def) K
+( traducir_circulo\(tokens\):) p n
+(    radio = tokens[1]) N
+(    ps = ") S
+(%s %s scale circ) str
+(" % \(radio, radio\)) p n
+(    ) S
+(return) K
+( aislar\(ps\)) p n
+() N
+(def) K
+( traducir_mover\(tokens\):) p n
+(    dx = tokens[1]) N
+(    dy = tokens[2]) N
+(    g = presult_a_string\(tokens[3]\)) N
+(    ps = ") S
+(%s %s translate %s) str
+(" % \(dx, dy, g\)) p n
+() N
+(    ) S
+(return) K
+( aislar\(ps\)) p n
+() N
+(def) K
+( traducir_rotar\(tokens\):) p n
+(    a = tokens[1]) N
+(    g = presult_a_string\(tokens[2]\)) N
+(    ps = ") S
+(%s rotate %s) str
+(" % \(a, g\)) p n
+(    ) S
+(return) K
+( aislar\(ps\)) p n
+() N
+(def) K
+( traducir_escalar\(tokens\):) p n
+(    fx = tokens[1]) N
+(    fy = tokens[2]) N
+(    g = presult_a_string\(tokens[3]\)) N
+(    ps = ") S
+(%s %s scale %s) str
+(" % \(fx, fy, g\)) p n
+(    ) S
+(return) K
+( aislar\(ps\)) p n
+() N
+(def) K
+( traducir_repetir\(tokens\):) p n
+(    n = tokens[1]) N
+(    dx = tokens[2]) N
+(    dy = tokens[3]) N
+(    g = presult_a_string\(tokens[4]\)) N
+(    ps = """) S
+(%s {) str n
+(%s) N
+(%s %s translate) N
+(} repeat) S
+(""" % \(n, g, dx, dy\)) p n
+() N
+(    ) S
+(return) K
+( aislar\(ps\)) p n
+() N
+(def) K
+( traducir_definir\(tokens\):) p n
+(    nombre = tokens[1]) N
+(    g = presult_a_string\(tokens[2]\)) N
+() N
+(    nombre = nombre.lower\(\)) N
+() N
+(    ) S
+(if) K
+( nombre ) p
+(in) K
+( PSCLAVE:) p n
+(        ) S
+(raise) K
+( ErrorTP\(") p
+(La palabra ) str
+(" + nombre + ") p
+( es una palabra reservada) str
+(" +) p n
+(            ") S
+( y no puede usarse como nombre de un grafico.) str
+("\)) p n
+(    ) N
+(    tabla_nombres[nombre] = g) N
+(    ) S
+(return) K
+( "") p n
+() N
+(def) K
+( traducir_nombre\(tokens\):) p n
+(    nombre = tokens[0]) N
+() N
+(    nombre = nombre.lower\(\)) N
+() N
+(    ) S
+(if) K
+( nombre ) p
+(in) K
+( tabla_nombres:) p n
+(        ) S
+(return) K
+( tabla_nombres[nombre]) p n
+() N
+(    adic = "") N
+(    ) S
+(if) K
+( nombre ) p
+(in) K
+( PSCLAVE:) p n
+(        adic = ") S
+( \(Tampoco puede definirse mediante 'define' por ser una) str
+(" + \\) p n
+(            ") S
+( palabra clave.\)) str
+(") p n
+() N
+(    ) S
+(raise) K
+( ErrorTP\(") p
+(El nombre ) str
+(" + nombre + ") p
+( no ha sido definido.) str
+(" + adic\)) p n
+(tp.py) (Page 2/5) (Dec 16, 09 3:56) title
+border
+grestore
+(Printed by Pablo) rhead
+(tp.py) (1/3) (Wednesday December 16, 2009) footer
+end % of iso1dict
+pagesave restore
+showpage
+%%Page: (3-4) 2
+%%BeginPageSetup
+/pagesave save def
+sh 0 translate 90 rotate
+%%EndPageSetup
+iso1dict begin
+gsave
+llx lly 12 add translate
+/v 0 store
+/x0 x v get 3.147420 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+() p n
+(# =====================================================) c n
+(# Correspondencias entre tokens y "acciones de parsing") N
+(# =====================================================) N
+() p n
+(caja.setParseAction\(traducir_caja\)) N
+(circulo.setParseAction\(traducir_circulo\)) N
+(mover.setParseAction\(traducir_mover\)) N
+(rotar.setParseAction\(traducir_rotar\)) N
+(escalar.setParseAction\(traducir_escalar\)) N
+(repetir.setParseAction\(traducir_repetir\)) N
+(definir.setParseAction\(traducir_definir\)) N
+(nombre_definido.setParseAction\(traducir_nombre\)) N
+() N
+(# ===========================) c n
+(# Funciones auxiliares varias) N
+(# ===========================) N
+() p n
+() N
+(class) K
+( ErrorTP\(Exception\):) p n
+(    ) S
+(def) K
+( __init__\(self, msg\):) p n
+(        Exception.__init__\(self, ") S
+(ERROR: ) str
+(" + msg\)) p n
+() N
+() N
+(def) K
+( agregar_contexto\(codigo_ps\):) p n
+(    encabezado = """) N
+(5 dict begin) str n
+(/box {) N
+(  0 0 moveto 0 1 lineto 1 1 lineto 1 0 lineto closepath fill) N
+(} def) N
+(/circ {) N
+(  0 0 1 0 360 arc closepath fill) N
+(} def) N
+() N
+(""") p n
+(    pie = """) N
+(end) str n
+(showpage) S
+(""") p n
+() N
+(    ) S
+(return) K
+( encabezado + codigo_ps + pie) p n
+() N
+(XMAX = float\(612\) ) N
+(YMAX = float\(792\)) N
+(COLS = 4) N
+(FILAS = 6) N
+(FILA_SIZE = YMAX/FILAS) N
+(COL_SIZE = XMAX/COLS) N
+(DX = COL_SIZE/2) N
+(DY = FILA_SIZE/2) N
+() N
+(def) K
+( posicionar\(posicion, contenido\):) p n
+(    posx = posicion % COLS) N
+(    posy = posicion/COLS) N
+() N
+(    x = posx*COL_SIZE + DX) N
+(    y = YMAX - \(posy*FILA_SIZE + DY\)) N
+() N
+(    despl = ") S
+(move %d %d ) str
+(" % \(x, y\)) p n
+() N
+(    ) S
+(return) K
+( despl + ") p
+(\() str
+(" + contenido + ") p
+(\)\\n) str
+(") p n
+() N
+(def) K
+( escalar_inicial\(contenido\):) p n
+(    esc = ") S
+(scale %s %s ) str
+(" % \(options.scalex, options.scaley\)) p n
+(    ) S
+(return) K
+( esc + ") p
+(\() str
+(" + contenido + ") p
+(\)) str
+(") p n
+() N
+(def) K
+( trasladar_inicial\(contenido\):) p n
+(    trans = ") S
+(move %s %s ) str
+(" % \(options.translatex, options.translatey\)) p n
+(    ) S
+(return) K
+( trans + ") p
+(\() str
+(" + contenido + ") p
+(\)) str
+(") p n
+() N
+(tp.py) (Page 3/5) (Dec 16, 09 3:56) title
+border
+/v 1 store
+/x0 x v get 3.147420 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+() p n
+(if) K
+( __name__ == ") p
+(__main__) str
+(":) p n
+() N
+(    ) S
+(# Definimos las opciones del script.) c n
+(    optparser = OptionParser\(\)) p n
+() N
+(    optparser.add_option\(") S
+(-o) str
+(", ") p
+(--output) str
+(", dest = ") p
+(archivo_salida) str
+(",) p n
+(        default = ") S
+(-) str
+(", metavar = ") p
+(ARCHIVO) str
+(",) p n
+(        help = ") S
+(escribir la salida en el archivo ARCHIVO. Si ARCHIVO es `-',) str
+(" +) p n
+(            ") S
+( usar la salida estandar.) str
+("\)) p n
+(    optparser.add_option\(") S
+(-g) str
+(", ") p
+(--grid) str
+(", dest = ") p
+(grid) str
+(",) p n
+(        default = False, action = ") S
+(store_true) str
+(",) p n
+(        help = ") S
+(ubicar el resultado de cada una de las entradas en una grilla) str
+("\)) p n
+(    optparser.add_option\(") S
+(--scalex) str
+(", dest = ") p
+(scalex) str
+(",) p n
+(        default = ") S
+(1) str
+(", metavar = ") p
+(FACTOR) str
+(",) p n
+(        help = ") S
+(escalar en X la salida segun el factor FACTOR.) str
+("\)) p n
+(    optparser.add_option\(") S
+(--scaley) str
+(", dest = ") p
+(scaley) str
+(",) p n
+(        default = ") S
+(1) str
+(", metavar = ") p
+(FACTOR) str
+(",) p n
+(        help = ") S
+(escalar en Y la salida segun el factor FACTOR.) str
+("\)) p n
+(    optparser.add_option\(") S
+(--translatex) str
+(", dest = ") p
+(translatex) str
+(",) p n
+(        default = ") S
+(0) str
+(", metavar = ") p
+(DX) str
+(",) p n
+(        help = ") S
+(trasladar en X segun DX. \(La traslacion se produce antes que) str
+(" +) p n
+(            ") S
+( el escalamiento.\)) str
+("\)) p n
+(    optparser.add_option\(") S
+(--translatey) str
+(", dest = ") p
+(translatey) str
+(",) p n
+(        default = ") S
+(0) str
+(", metavar = ") p
+(DY) str
+(",) p n
+(        help = ") S
+(trasladar en Y segun DY. \(La traslacion se produce antes que) str
+(" +) p n
+(            ") S
+( el escalamiento.\)) str
+("\)) p n
+() N
+(    ) N
+() N
+(    \(options, args\) = optparser.parse_args\(\)) N
+() N
+(    ) S
+(if) K
+( len\(args\) == 0:) p n
+(        ) S
+(# No se especificaron archivos de entrada, asi que leemos de stdin.) c n
+(        input = trasladar_inicial\(escalar_inicial\(sys.stdin.read\(\)\)\)) p n
+() N
+(    ) S
+(else) K
+(:) p n
+(        ) S
+(# Se especificaron archivos de entrada. Usamos la concatenacion de) c n
+(        ) p
+(# sus contenidos como entrada.) c n
+(        input = "") p n
+(        ) S
+(for) K
+( i, fname ) p
+(in) K
+( enumerate\(args\):) p n
+(            f = open\(fname\)) N
+(            fcontent = f.read\(\)) N
+() N
+(            fcontent = trasladar_inicial\(escalar_inicial\(fcontent\)\)) N
+() N
+(            ) S
+(if) K
+( options.grid:) p n
+(                fcontent = posicionar\(i, fcontent\)) N
+() N
+(            input += fcontent) N
+() N
+(            f.close\(\)) N
+() N
+(    ) S
+(# El lenguaje F es case-insensitive.) c n
+(    input = input.lower\(\)) p n
+() N
+(    ) S
+(try) K
+(:) p n
+(    ) N
+(        presult = \(OneOrMore\(expresion\) + stringEnd\).parseString\(input\)) N
+() N
+(        codigo_ps = presult_a_string\(presult\)) N
+() N
+(        codigo_ps = agregar_contexto\(codigo_ps\)) N
+(        ) N
+(        ) S
+(if) K
+( options.archivo_salida == ") p
+(-) str
+(":) p n
+(            ) S
+(# `-' quiere decir "salida estandar") c n
+(            ) p
+(print) K
+( >> sys.stdout, codigo_ps) p n
+(        ) S
+(else) K
+(:) p n
+(            fname = options.archivo_salida) N
+(tp.py) (Page 4/5) (Dec 16, 09 3:56) title
+border
+grestore
+(Printed by Pablo) rhead
+(tp.py) (2/3) (Wednesday December 16, 2009) footer
+end % of iso1dict
+pagesave restore
+showpage
+%%Page: (5) 3
+%%BeginPageSetup
+/pagesave save def
+sh 0 translate 90 rotate
+%%EndPageSetup
+iso1dict begin
+gsave
+llx lly 12 add translate
+/v 0 store
+/x0 x v get 3.147420 add sx cw mul add store
+/y0 y v get bfs th add sub store
+x0 y0 moveto
+(            f = open\(fname, ") p
+(w) str
+("\)) p n
+(            f.write\(codigo_ps\)) N
+(            f.close\(\)) N
+(    ) S
+(except) K
+( Exception as e:) p n
+(        ) S
+(print) K
+( >> sys.stderr, e) p n
+(tp.py) (Page 5/5) (Dec 16, 09 3:56) title
+border
+grestore
+(Printed by Pablo) rhead
+(tp.py) (3/3) (Wednesday December 16, 2009) footer
+end % of iso1dict
+pagesave restore
+showpage
+
+%%Trailer
+end
+%%EOF
