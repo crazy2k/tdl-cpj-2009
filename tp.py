@@ -18,30 +18,23 @@ natural = Word(nums) # natural contempla tambien el 0
 realpositivo = Combine(natural + Optional(Combine("." + Word(nums)))) | Combine("." + Word(nums))
 real = realpositivo | Combine(Literal("-") + realpositivo)
 
-grafico = Forward()
-grafico_agr = Forward()
+expresion = Forward()
 
 nombre_a_definir = Word(alphanums)
 nombre_definido = Word(alphanums)
 
 circulo = Literal("circle") + realpositivo 
 caja = Literal("box") + realpositivo + realpositivo
-mover = Literal("move") + real + real + grafico_agr
-escalar = Literal("scale") + real + real + grafico_agr
-rotar = Literal("rotate") + real + grafico_agr
-repetir = Literal("repeat") + natural + real + real + grafico_agr
-definir = Literal("define") + nombre_a_definir + grafico_agr
+mover = Literal("move") + real + real + expresion
+escalar = Literal("scale") + real + real + expresion
+rotar = Literal("rotate") + real + expresion
+repetir = Literal("repeat") + natural + real + real + expresion
+definir = Literal("define") + nombre_a_definir + expresion
 
 funcion = circulo | caja | mover | escalar | rotar | repetir | definir
 
-funcion_agr = Group(funcion)
-
-expresion = funcion_agr | nombre_definido
-
-grafico << (Group(OneOrMore(Group(expresion) | Group(LPAREN + expresion + RPAREN))) |
-    Group(OneOrMore(Group(LPAREN + grafico + RPAREN))))
-
-grafico_agr << (expresion | LPAREN + grafico + RPAREN)
+expresion << Group(funcion | LPAREN + OneOrMore(expresion) + RPAREN 
+    | nombre_definido)
 
 # =================================================
 # Funciones auxiliares de las "acciones de parsing"
@@ -49,6 +42,8 @@ grafico_agr << (expresion | LPAREN + grafico + RPAREN)
 
 ps_save = "\n" + "gsave" + "\n"
 ps_restore = "\n" + "grestore" + "\n"
+
+PSCLAVE = ["circle", "box", "rotate", "move", "scale", "repeat", "define"]
 
 tabla_nombres = {}
 
@@ -85,6 +80,7 @@ def traducir_mover(tokens):
     dy = tokens[2]
     g = presult_a_string(tokens[3])
     ps = "%s %s translate %s" % (dx, dy, g)
+
     return aislar(ps)
 
 def traducir_rotar(tokens):
@@ -116,9 +112,9 @@ def traducir_definir(tokens):
     nombre = tokens[1]
     g = presult_a_string(tokens[2])
 
-    psclave = ["circle", "box", "rotate", "move", "scale", "repeat", "define"]
+    nombre = nombre.lower()
 
-    if nombre in psclave:
+    if nombre in PSCLAVE:
         raise ErrorTP("La palabra " + nombre + " es una palabra reservada" +
             " y no puede usarse como nombre de un grafico.")
     
@@ -128,10 +124,17 @@ def traducir_definir(tokens):
 def traducir_nombre(tokens):
     nombre = tokens[0]
 
+    nombre = nombre.lower()
+
     if nombre in tabla_nombres:
         return tabla_nombres[nombre]
 
-    raise ErrorTP("El nombre " + nombre + " no ha sido definido.")
+    adic = ""
+    if nombre in PSCLAVE:
+        adic = " (Tampoco puede definirse mediante 'define' por ser una" + \
+            " palabra clave.)"
+
+    raise ErrorTP("El nombre " + nombre + " no ha sido definido." + adic)
 
 # =====================================================
 # Correspondencias entre tokens y "acciones de parsing"
@@ -258,9 +261,8 @@ if __name__ == "__main__":
     input = input.lower()
 
     try:
-        print input
-
-        presult = (grafico + stringEnd).parseString(input)
+    
+        presult = (OneOrMore(expresion) + stringEnd).parseString(input)
 
         codigo_ps = presult_a_string(presult)
 
@@ -268,7 +270,7 @@ if __name__ == "__main__":
         
         if options.archivo_salida == "-":
             # `-' quiere decir "salida estandar"
-            print codigo_ps
+            print >> sys.stdout, codigo_ps
         else:
             fname = options.archivo_salida
             f = open(fname, "w")
@@ -276,6 +278,3 @@ if __name__ == "__main__":
             f.close()
     except Exception as e:
         print >> sys.stderr, e
-        
-
-# XXX: Ver el tema de -g con entrada estandar.
