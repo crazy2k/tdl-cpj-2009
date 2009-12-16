@@ -6,6 +6,7 @@
 \begin_preamble
 \date{}
 \setcounter{page}{-1}
+\definecolor{light-gray}{gray}{0.97}
 \end_preamble
 \use_default_options false
 \language spanish
@@ -20,7 +21,7 @@
 \font_tt_scale 100
 
 \graphics default
-\paperfontsize 10
+\paperfontsize 11
 \spacing single
 \use_hyperref false
 \papersize a4paper
@@ -396,153 +397,57 @@ Introducción
 \end_layout
 
 \begin_layout Standard
-En el presente trabajo práctico desarrollamos un traductor de lenguaje
- F al lenguaje PostScript.
- Las siguientes secciones presentan una gramatica definida para reconocer
- el lenguaje F, junto con la definición de los tipos de token que componen
- el lenguaje, la descripción de la implementción de la solución, y ejemplos
- de expresiones validas e invalidas con sus correspondientes resultados.
- 
+En el presente trabajo práctico, desarrollamos un traductor del lenguaje
+ F al popular lenguaje PostScript.
+\end_layout
+
+\begin_layout Standard
+Las siguientes secciones de este documento presentan:
+\end_layout
+
+\begin_layout Itemize
+la definición de los tipos de 
+\emph on
+token
+\emph default
+ que elegimos,
+\end_layout
+
+\begin_layout Itemize
+la gramatica definida para reconocer el lenguaje F,
+\end_layout
+
+\begin_layout Itemize
+una descripción de la implementción de la solución,
+\end_layout
+
+\begin_layout Itemize
+y ejemplos de expresiones validas e invalidas con sus correspondientes resultado
+s.
 \end_layout
 
 \begin_layout Section
-Gramática
+Definición de 
+\emph on
+tokens
 \end_layout
 
 \begin_layout Standard
-La gramática propuesta para el lenguaje F es la siguiente:
+Si bien, como explicaremos más adelante, en nuestra aproximación al problema
+ --principalmente debido a la biblioteca que utilizamos-- la separación
+ entre análisis léxico y análisis sintáctico no está muy marcada, escribimos
+ una posible definición de 
+\emph on
+tokens
+\emph default
+ que podría corresponder a una implementación en la que la separación entre
+ las distintas etapas de análisis sea más explícita: 
 \end_layout
 
 \begin_layout Standard
-\begin_inset Formula $G=<V_{T},V_{N},P,S>$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-Con:
-\end_layout
-
-\begin_layout Itemize
-\begin_inset Formula $V_{T}=\{circle,box,move,scale,rotate,repeat,define,nombre,(,)\}$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Itemize
-\begin_inset Formula $V_{N}=\{GRAFICO,GRAFICO\_AGR,EXPRESION,FUNCION,CIRCULO,CAJA,MOVER,$
-\end_inset
-
-
-\begin_inset Formula $ESCALAR,ROTAR,REPETIR,DEFINIR\}$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Itemize
-\begin_inset Formula $S=GRAFICO$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Itemize
-Con 
-\begin_inset Formula $P$
-\end_inset
-
-:
-\end_layout
-
-\begin_deeper
-\begin_layout Standard
-\begin_inset Formula $GRAFICO\longrightarrow EXPRESION^{+}\,|\,'('EXPRESION')'\,|\,('('GRAFICO')')^{+}$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula $GRAFICO\_AGR\longrightarrow EXPRESION\,|\,'('GRAFICO')'$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula $FUNCION\longrightarrow CIRCULO\,|\, CAJA\,|\, MOVER\,|\, ESCALAR\,|\, ROTAR\,|\, REPETIR\,|\, DEFINIR$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula $CIRCULO\longrightarrow circle\, realpositivo$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula $CAJA\longrightarrow box\, realpositivo\, realpositivo$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula $MOVER\longrightarrow move\, real\, real\, GRAFICO\_AGR$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula $ESCALAR\longrightarrow scale\, real\, real\, GRAFICO\_AGR$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula $ROTAR\longrightarrow rotate\, real\, GRAFICO\_AGR$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula $REPETIR\longrightarrow repeat\, natural\, real\, real\, GRAFICO\_AGR$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula $DEFINIR\longrightarrow define\, nombre\, GRAFICO\_AGR$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula $EXPRESION\longrightarrow FUNCION\,|\, nombre$
-\end_inset
-
-
-\end_layout
-
-\end_deeper
-\begin_layout Standard
-Tokens:
-\end_layout
-
-\begin_layout Standard
+\align center
 \begin_inset Tabular
-<lyxtabular version="3" rows="12" columns="2">
+<lyxtabular version="3" rows="10" columns="2">
 <features>
 <column alignment="center" valignment="top" width="0">
 <column alignment="center" valignment="top" width="0">
@@ -551,6 +456,8 @@ Tokens:
 \begin_inset Text
 
 \begin_layout Plain Layout
+
+\series bold
 Token
 \end_layout
 
@@ -560,6 +467,8 @@ Token
 \begin_inset Text
 
 \begin_layout Plain Layout
+
+\series bold
 Descripción informal
 \end_layout
 
@@ -571,7 +480,7 @@ Descripción informal
 \begin_inset Text
 
 \begin_layout Plain Layout
-\begin_inset Formula $natural$
+\begin_inset Formula $num$
 \end_inset
 
 
@@ -583,53 +492,7 @@ Descripción informal
 \begin_inset Text
 
 \begin_layout Plain Layout
-Cualquier constante numérica natural
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Formula $realpositivo$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-Cualquier constante numérica real positiva
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Formula $real$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-Cualquier constante numérica real
+Cualquier constante numérica.
 \end_layout
 
 \end_inset
@@ -652,14 +515,14 @@ Cualquier constante numérica real
 \begin_inset Text
 
 \begin_layout Plain Layout
-Secuencia de caracteres alfanuméricos
+Secuencia de caracteres alfanuméricos.
 \end_layout
 
 \end_inset
 </cell>
 </row>
 <row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -682,7 +545,7 @@ Secuencia de caracteres alfanuméricos
 </cell>
 </row>
 <row>
-<cell alignment="center" valignment="top" leftline="true" usebox="none">
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -705,7 +568,7 @@ Secuencia de caracteres alfanuméricos
 </cell>
 </row>
 <row>
-<cell alignment="center" valignment="top" leftline="true" usebox="none">
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -728,7 +591,7 @@ Secuencia de caracteres alfanuméricos
 </cell>
 </row>
 <row>
-<cell alignment="center" valignment="top" leftline="true" usebox="none">
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -744,14 +607,18 @@ Secuencia de caracteres alfanuméricos
 \begin_inset Text
 
 \begin_layout Plain Layout
-Secuencia de caracteres correspondiente a cada token
+Secuencia de caracteres correspondiente a cada 
+\emph on
+token
+\emph default
+.
 \end_layout
 
 \end_inset
 </cell>
 </row>
 <row>
-<cell alignment="center" valignment="top" leftline="true" usebox="none">
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -774,7 +641,7 @@ Secuencia de caracteres correspondiente a cada token
 </cell>
 </row>
 <row>
-<cell alignment="center" valignment="top" leftline="true" usebox="none">
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -797,7 +664,7 @@ Secuencia de caracteres correspondiente a cada token
 </cell>
 </row>
 <row>
-<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -826,16 +693,76 @@ Secuencia de caracteres correspondiente a cada token
 
 \end_layout
 
-\begin_layout Standard
-
+\begin_layout Section
+Gramática
 \end_layout
 
 \begin_layout Standard
-\begin_inset Note Note
+La gramática propuesta para el lenguaje F es 
+\begin_inset Formula $G=<V_{N},V_{T},P,S>$
+\end_inset
+
+ con:
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $V_{N}=\{\mathbf{expresion},\mathbf{funcion},\mathbf{circulo},\mathbf{caja},\mathbf{mover},\mathbf{escalar},\mathbf{rotar},\mathbf{repetir},\mathbf{definir}\}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $V_{T}=\{circle,box,move,scale,rotate,repeat,define,nombre,num\}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $S=\mathbf{documento}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Con 
+\begin_inset Formula $P$
+\end_inset
+
+:
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+\begin_inset Box Boxed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
 status open
 
 \begin_layout Plain Layout
-Poner versión final de la gramática generada.
+\begin_inset Formula $\begin{array}{lcl}
+\mathbf{documento} & \longrightarrow & \mathbf{expresion^{+}}\\
+\\\mathbf{expresion} & \longrightarrow & \mathbf{funcion}\hspace{0.2cm}|\hspace{0.2cm}(\mathbf{expresion^{+}})\hspace{0.2cm}|\hspace{0.2cm}nombre\\
+\\\mathbf{funcion} & \longrightarrow & \mathbf{circulo}\hspace{0.2cm}|\hspace{0.2cm}\mathbf{caja}\hspace{0.2cm}|\hspace{0.2cm}\mathbf{mover}\hspace{0.2cm}|\hspace{0.2cm}\mathbf{escalar}\hspace{0.2cm}|\hspace{0.2cm}\mathbf{rotar}\hspace{0.2cm}|\hspace{0.2cm}\mathbf{repetir}\hspace{0.2cm}|\hspace{0.2cm}\mathbf{definir}\\
+\\\mathbf{circulo} & \longrightarrow & circle\hspace{0.15cm}num\\
+\mathbf{caja} & \longrightarrow & box\hspace{0.15cm}num\hspace{0.15cm}num\\
+\mathbf{mover} & \longrightarrow & move\hspace{0.15cm}num\hspace{0.15cm}num\hspace{0.15cm}\mathbf{expresion}\\
+\mathbf{escalar} & \longrightarrow & scale\hspace{0.15cm}num\hspace{0.15cm}num\hspace{0.15cm}\mathbf{expresion}\\
+\mathbf{rotar} & \longrightarrow & rotate\hspace{0.15cm}num\hspace{0.15cm}\mathbf{expresion}\\
+\mathbf{repetir} & \longrightarrow & repeat\hspace{0.15cm}num\hspace{0.15cm}num\hspace{0.15cm}num\hspace{0.15cm}\mathbf{expresion}\\
+\mathbf{definir} & \longrightarrow & define\hspace{0.15cm}nombre\hspace{0.15cm}\mathbf{expresion}\end{array}$
+\end_inset
+
+
 \end_layout
 
 \end_inset
@@ -843,63 +770,246 @@ Poner versión final de la gramática generada.
 
 \end_layout
 
+\end_deeper
 \begin_layout Section
 Implementación de la solución
 \end_layout
 
-\begin_layout Standard
-Para la implementación del traductor utilizamos el lenguaje de programación
- Python, ya que es un lenguaje cuya sintaxis es sencilla, e incluye una
- importante colección de módulos estándar que nos facilitaron el desarrollo
- del mismo.
- El parser utilizado pertenece a la familia de parsers recursivos descendentes.
- La implementación usada es la de la librería PyParsing que permite una
- definicion amigable para escribir reglas gramaticales y obtener buen soporte
- en la sobrecarga de operadores.
+\begin_layout Subsection
+Lenguaje de programación utilizado
 \end_layout
 
 \begin_layout Standard
-\begin_inset Note Note
+Para la implementación del traductor, utilizamos el lenguaje de programación
+ Python.
+ Lo elegimos principalmente por ser un lenguaje con una sintaxis sencilla
+ y simple, y por las facilidades que presenta para manipular estructuras
+ de datos simples.
+ Sus características nos permitieron abocarnos al problema en cuestión y
+ realizar un desarrollo rápido.
+\end_layout
+
+\begin_layout Subsection
+Pyparsing
+\end_layout
+
+\begin_layout Standard
+Utilizamos, para la implementación de la solución, la biblioteca Pyparsing.
+ Esta biblioteca nos permite generar, a partir de un conjunto de reglas
+ de gramática, definidas de manera muy simple, un analizador sintáctico
+ recursivo descendente.
+\end_layout
+
+\begin_layout Standard
+Como mencionamos anteriormente, en Pyparsing no se hallan del todo separadas
+ las nociones de análisis léxico y análisis sintáctico.
+ Pyparsing permite definir los 
+\emph on
+tokens
+\emph default
+ en la definición de la gramática misma.
+\end_layout
+
+\begin_layout Standard
+En general, cuando se trabaja con esta biblioteca, uno construye expresiones
+ más complejas a partir de otras más simples, combinando estas últimas mediante
+ distintos operadores.
+\end_layout
+
+\begin_layout Standard
+En el acercamiento en el que se encuentran claramente diferenciadas las
+ dos etapas de análisis mencionadas, uno definiría, por un lado, los 
+\emph on
+tokens
+\emph default
+ y, por el otro, la gramática.
+ Veamos un ejemplo del acercamiento que utiliza Pyparsing.
+\end_layout
+
+\begin_layout Standard
+Tomemos como ejemplo el caso de validar un número telefónico de 7 cifras
+ más una característica de zona opcional:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+lstparams "backgroundcolor={\color{light-gray}},basicstyle={\footnotesize},frame=lines,framexleftmargin=10pt,language=Python,xleftmargin=25pt"
+inline false
 status open
 
-\begin_layout Itemize
-Explicar algo de Python, PyParsing.
+\begin_layout Plain Layout
+
+caract = Literal("(") + Word(nums, exact = 3) + Literal(")")
 \end_layout
 
-\begin_layout Itemize
-Poner todo el código.
+\begin_layout Plain Layout
+
+numero = Combine(Optional(caract) + Word(nums, exact = 7))
 \end_layout
 
 \end_inset
 
-Modo de uso 
+
 \end_layout
 
 \begin_layout Standard
-El traductor puede ser invocado por linea de comandos con la siguientes
- posibilidades: 
+Como se ve, la forma de definir las expresiones válidas es muy sencilla.
+ 
+\family typewriter
+Literal()
+\family default
+ le indica a Pyparsing que queremos que su contenido se encuentre presente
+ de manera literal en la cadena de entrada.
+ 
+\family typewriter
+Word()
+\family default
+ nos permite especificar que queremos cadenas/palabras formadas por ciertos
+ caracteres específicos; en este caso, se trata de los caracteres numéricos.
+ El operador 
+\family typewriter
++
+\family default
+ nos permite concatenar nuestras especificaciones.
+ 
+\family typewriter
+Optional()
+\family default
+ nos permite especificar que algo que sea identificado por su contenido
+ puede estar o no en la cadena en determinada posición.
+ 
+\family typewriter
+Combine()
+\family default
+, por último, sirve para decirle a Pyparsing que queremos el resultado de
+ lo analizado todo junto, como una unidad.
 \end_layout
 
 \begin_layout Standard
-* ingresar la entrada por la entrada estándar, 
+Para poner en marcha nuestro analizador, basta con tomar la expresión que
+ queremos usar (en este caso podría ser 
+\family typewriter
+numero
+\family default
+) y realizar una llamada al método 
+\family typewriter
+parseString()
+\family default
+, pasándole a este la cadena de entrada, como sigue:
 \end_layout
 
 \begin_layout Standard
-* ingresar la entrada mediante uno o más archivos, 
+\begin_inset listings
+lstparams "backgroundcolor={\color{light-gray}},basicstyle={\footnotesize},frame=lines,framexleftmargin=10pt,language=Python,xleftmargin=25pt"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+presult = (numero + stringEnd).parseString("(123)1234567") 
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
-* recibir la salida por la salida estándar, 
+(Utilizamos 
+\family typewriter
+stringEnd
+\family default
+ para especificarle a Pyparsing que queremos analizar toda la entrada.)
+\end_layout
+
+\begin_layout Subsection
+Interfaz de línea de comandos
 \end_layout
 
 \begin_layout Standard
-* recibir la salida en un archivo.
+Para facilitarnos la tarea de la interacción con el usuario, utilizamos
+ un módulo de Python llamado 
+\family typewriter
+optparse
+\family default
+.
+ Este módulo nos permitió definir las diferentes opciones de nuestra aplicación.
+ La interfaz por línea de comandos permite:
+\end_layout
+
+\begin_layout Itemize
+ingresar el documento de entrada por la entrada estándar, 
+\end_layout
+
+\begin_layout Itemize
+ingresar el documento de entrada mediante uno o más archivos, 
+\end_layout
+
+\begin_layout Itemize
+recibir la salida por la salida estándar, 
+\end_layout
+
+\begin_layout Itemize
+recibir la salida en un archivo.
  
 \end_layout
 
 \begin_layout Standard
-Funcionalidad adicional: * modo "grid" ..
- 
+Además, existen algunas funcionalidades adicionales como ser:
+\end_layout
+
+\begin_layout Itemize
+El modo 
+\begin_inset Quotes eld
+\end_inset
+
+
+\emph on
+grid
+\emph default
+
+\begin_inset Quotes erd
+\end_inset
+
+: Usando este modo, obtendremos como salida una grilla en la que se encontrarán
+ ubicadas las salidas de cada uno de los archivos de entrada.
+\end_layout
+
+\begin_layout Itemize
+Posibilidad de traslación y escalamiento global: Es posible especificar
+ valores para traslación y escalamiento en X y en Y que afectarán a todo
+ el documento resultante.
+\end_layout
+
+\begin_layout Standard
+Al final del presente documento, pueden verse las salidas de los siguientes
+ comandos:
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+$ python tp.py testcases/validos/*.f testcases/validos/*.f -g
+\begin_inset Newline newline
+\end_inset
+
+ --scalex=20 --scaley=20
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+$ python tp.py testcases/validos/grandes/gatito-1.f
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+$ python tp.py testcases/validos/hombrecitos-1.f --translatex=300 
+\begin_inset Newline newline
+\end_inset
+
+--translatey=600 --scalex=50 --scaley=50
 \end_layout
 
 \begin_layout Section
@@ -907,37 +1017,168 @@ Ejemplos
 \end_layout
 
 \begin_layout Standard
-Expresiones válidas 
+En el directorio 
+\family typewriter
+./testcases/validos/
+\family default
+ (a partir de la raíz del TP) se puede encontrar una serie de archivos con
+ expresiones válidas (incluyendo los ejemplos de la catedra).
+ Para obtener el código PostScript a partir de ellos, se puede utilizar
+ el siguiente comando (ubicándonos, como siempre, en la raíz del TP):
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+$ python tp.py testcases/validos/<archivo-a-probar> --translatex=300 
+\begin_inset Newline newline
+\end_inset
+
+--translatey=600 --scalex=50 --scaley=50 -o salida.ps 
 \end_layout
 
 \begin_layout Standard
-En el directorio *Ejemplos expresiones válidas* se puede encontrar una serie
- de archivos con expresiones válidas (incluyendo los ejemplos de la catedra).
- Los mismos pueden correrse como se indica a continuación:
+En el directorio 
+\family typewriter
+./testcases/invalidos/
+\family default
+ (a partir de la raíz del TP) se puede encontrar una serie de archivos con
+ expresiones inválidas.
+ Los mismos pueden correrse ejecutando el comando: 
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+$ python tp.py testcases/invalidos/<archivo-a-probar> -o salida.ps
 \end_layout
 
 \begin_layout Standard
-Los resultados obtenidos se encuentran en el directorio *Resultados expresiones
- validas* 
+A continuación, algunas expresiones inválidas con sus respectivos errores:
 \end_layout
 
-\begin_layout Standard
-Expresiones inválidas 
+\begin_layout Itemize
+\begin_inset Box Frameless
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+\begin_inset listings
+lstparams "backgroundcolor={\color{light-gray}},basicstyle={\footnotesize},frame=lines,framexleftmargin=10pt,xleftmargin=25pt"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+define scale (box .5 .5) 
 \end_layout
 
-\begin_layout Standard
-En el directorio *Ejemplos expresiones inválidas* se puede encontrar una
- serie de archivos con expresiones inválidas.
- Los mismos pueden correrse como se indica a continuación: Los resultados
- obtenidos en cada caso son los siguientes: 
+\end_inset
+
+
 \end_layout
 
-\begin_layout Standard
-Caso: Error: 
+\begin_layout Plain Layout
+
+\series bold
+ERROR: La palabra scale es una palabra reservada y no puede usarse como
+ nombre de un grafico.
+ 
 \end_layout
 
-\begin_layout Standard
-Resultado obtenido:
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Box Frameless
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+\begin_inset listings
+lstparams "backgroundcolor={\color{light-gray}},basicstyle={\footnotesize},frame=lines,framexleftmargin=10pt,xleftmargin=25pt"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+rotate 10 cosa
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\series bold
+ERROR: El nombre cosa no ha sido definido.
+ 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Box Frameless
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+\begin_inset listings
+lstparams "backgroundcolor={\color{light-gray}},basicstyle={\footnotesize},frame=lines,framexleftmargin=10pt,xleftmargin=25pt"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+box box
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\series bold
+ERROR: El nombre box no ha sido definido.
+ (Tampoco puede definirse mediante 'define' por ser una palabra clave.) 
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \end_body
